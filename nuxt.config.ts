@@ -5,7 +5,11 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@nuxtjs/color-mode',
     '@nuxt/image',
+    '@pinia/nuxt',
   ],
+  routeRules: {
+    '/shop/**': { ssr: true }
+  },
   tailwindcss: {
     cssPath: '~/assets/css/main.css',
     configPath: 'tailwind.config.ts',
@@ -14,6 +18,9 @@ export default defineNuxtConfig({
   },
   colorMode: {
     classSuffix: ''
+  },
+  nitro: {
+    // Remove devProxy configuration
   },
   app: {
     head: {
@@ -27,6 +34,13 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap' }
       ]
+    }
+  },
+  runtimeConfig: {
+    public: {
+      woocommerceApiUrl: process.env.WOOCOMMERCE_API_URL,
+      woocommerceConsumerKey: process.env.WOOCOMMERCE_CONSUMER_KEY,
+      woocommerceConsumerSecret: process.env.WOOCOMMERCE_CONSUMER_SECRET,
     }
   }
 })

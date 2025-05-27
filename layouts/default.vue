@@ -1,18 +1,6 @@
 <template>
   <div class="min-h-screen bg-[#131314] text-white">
-    <header class="fixed top-0 left-0 right-0 z-50 bg-[#131314]/80 backdrop-blur-sm border-b border-white/10">
-      <nav class="container mx-auto px-4 py-4">
-        <div class="flex items-center justify-between">
-          <NuxtLink to="/" class="text-2xl font-bold text-white">The Joshua Tea</NuxtLink>
-          <div class="hidden md:flex items-center space-x-8">
-            <NuxtLink to="/" class="text-white/80 hover:text-white">Start</NuxtLink>
-            <NuxtLink to="/recipes" class="text-white/80 hover:text-white">Rezepte</NuxtLink>
-            <NuxtLink to="/products" class="text-white/80 hover:text-white">TJT</NuxtLink>
-            <NuxtLink to="/anbar-gin" class="text-white/80 hover:text-white">Anbar Gin</NuxtLink>
-          </div>
-        </div>
-      </nav>
-    </header>
+    <Navbar />
     
     <main>
       <slot />
@@ -25,6 +13,7 @@
             <h3 class="text-xl font-bold mb-4">Navigation</h3>
             <ul class="space-y-2">
               <li><NuxtLink to="/" class="text-white/80 hover:text-white">Start</NuxtLink></li>
+              <li><NuxtLink to="/shop" class="text-white/80 hover:text-white">Shop</NuxtLink></li>
               <li><NuxtLink to="/recipes" class="text-white/80 hover:text-white">Rezepte</NuxtLink></li>
               <li><NuxtLink to="/products" class="text-white/80 hover:text-white">TJT</NuxtLink></li>
               <li><NuxtLink to="/anbar-gin" class="text-white/80 hover:text-white">Anbar Gin</NuxtLink></li>
