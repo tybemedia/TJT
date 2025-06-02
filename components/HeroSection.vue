@@ -1,38 +1,40 @@
 <template>
-  <div class="relative w-full">
-    <video 
-      ref="video"
-      class="w-full h-auto"
-      autoplay
-      loop
-      muted
-      playsinline
-    >
-      <source src="https://thejoshuatea.de/wp-content/uploads/2025/03/TJT.mp4" type="video/mp4">
-    </video>
-    <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
-    <div class="absolute inset-0 container mx-auto px-4 flex items-center">
-      <div class="max-w-2xl text-white">
+  <section class="relative">
+    <div class="w-full">
+      <video 
+        ref="video"
+        class="w-full"
+        autoplay
+        loop
+        muted
+        playsinline
+      >
+        <source src="https://thejoshuatea.de/wp-content/uploads/2025/03/TJT.mp4" type="video/mp4">
+      </video>
+      <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
+    </div>
+    <div class="absolute inset-0 container mx-auto px-8 flex items-center">
+      <div class="max-w-2xl text-white text-center">
         <img 
           src="https://thejoshuatea.de/wp-content/uploads/2024/12/logo_cropped-1.png" 
           alt="The Joshua Tea Logo" 
-          class="w-64 mb-8 opacity-0"
+          class="w-96 opacity-0 mx-auto mb-4"
           ref="logo"
         />
-        <h1 class="text-8xl font-bold mb-8 opacity-0" ref="title">
-          zeitlose Eleganz
+        <h1 class="text-8xl font-bold opacity-0 mb-8" ref="title">
+          <span class="text-4xl uppercase tracking-wider">ZEITLOSE ELEGANZ</span>
         </h1>
-        <div class="flex gap-6 opacity-0" ref="buttons">
-          <NuxtLink to="/products" class="px-8 py-3 text-lg font-medium bg-white text-gray-900 rounded-md hover:bg-gray-100 transition-colors duration-200">
-            Unsere Klassiker
+        <div class="flex gap-8 opacity-0 justify-center" ref="buttons">
+          <NuxtLink to="/products" class="px-8 py-3 text-lg font-medium bg-transparent border border-white text-white rounded-md hover:bg-white/10 transition-colors duration-200">
+            UNSERE KLASSIKER
           </NuxtLink>
-          <NuxtLink to="/recipes" class="px-8 py-3 text-lg font-medium border-2 border-white text-white rounded-md hover:bg-white/10 transition-colors duration-200">
-            Rezepte
+          <NuxtLink to="/recipes" class="px-8 py-3 text-lg font-medium bg-transparent border border-white text-white rounded-md hover:bg-white/10 transition-colors duration-200">
+            REZEPTE
           </NuxtLink>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -77,6 +79,5 @@ onMounted(() => {
 <style scoped>
 video {
   filter: brightness(0.9);
-  object-fit: contain;
 }
 </style> 
