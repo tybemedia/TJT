@@ -70,11 +70,12 @@
         </div>
       </div>
     </footer>
+    <Toast />
   </div>
 </template>
 
 <script setup lang="ts">
-// Layout logic can be added here
+import Toast from '~/components/Toast.vue'
 </script>
 
 <style>

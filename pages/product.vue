@@ -98,37 +98,65 @@
           </div>
 
           <!-- Add to Cart -->
-          <div class="flex items-center gap-4">
-            <div class="flex items-center border border-white/10 rounded-lg">
+          <div class="flex flex-col gap-4">
+            <div class="flex items-center gap-4">
+              <div class="flex items-center border border-white/10 rounded-lg">
+                <button 
+                  @click="quantity > 1 && quantity--"
+                  class="px-4 py-2 text-white/60 hover:text-white"
+                  :disabled="quantity <= 1"
+                >
+                  -
+                </button>
+                <span class="px-4 py-2 text-white">{{ quantity }}</span>
+                <button 
+                  @click="quantity++"
+                  class="px-4 py-2 text-white/60 hover:text-white"
+                >
+                  +
+                </button>
+              </div>
               <button 
-                @click="quantity > 1 && quantity--"
-                class="px-4 py-2 text-white/60 hover:text-white"
-                :disabled="quantity <= 1"
+                @click="addToCart"
+                class="flex-1 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                :disabled="cartStore.loading || !product.purchasable"
               >
-                -
-              </button>
-              <span class="px-4 py-2 text-white">{{ quantity }}</span>
-              <button 
-                @click="quantity++"
-                class="px-4 py-2 text-white/60 hover:text-white"
-              >
-                +
+                <svg v-if="!cartStore.loading" class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 22C9.55228 22 10 21.5523 10 21C10 20.4477 9.55228 20 9 20C8.44772 20 8 20.4477 8 21C8 21.5523 8.44772 22 9 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M20 22C20.5523 22 21 21.5523 21 21C21 20.4477 20.5523 20 20 20C19.4477 20 19 20.4477 19 21C19 21.5523 19.4477 22 20 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M1 1H5L7.68 14.39C7.77144 14.8504 8.02191 15.264 8.38755 15.5583C8.75318 15.8526 9.2107 16.009 9.68 16H19.4C19.8693 16.009 20.3268 15.8526 20.6925 15.5583C21.0581 15.264 21.3086 14.8504 21.4 14.39L23 6H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span v-if="cartStore.loading" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
+                <span v-if="cartStore.loading">Wird hinzugefügt...</span>
+                <span v-else>In den Warenkorb</span>
               </button>
             </div>
-            <button 
-              @click="addToCart"
-              class="flex-1 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              :disabled="cartStore.loading || !product.purchasable"
-            >
-              <span v-if="cartStore.loading">Wird hinzugefügt...</span>
-              <span v-else>In den Warenkorb</span>
-            </button>
+
+            <!-- Stripe Express Checkout -->
+            <div class="flex flex-col gap-2">
+              <button 
+                @click="handleExpressCheckout"
+                class="w-full px-6 py-3 bg-[#635BFF] text-white rounded-lg hover:bg-[#4B45C6] transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                :disabled="stripeLoading || !product.purchasable"
+              >
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span v-if="stripeLoading">Wird geladen...</span>
+                <span v-else>Express Checkout</span>
+              </button>
+              <p class="text-white/60 text-sm text-center">
+                Sichere Zahlung mit Stripe
+              </p>
+            </div>
           </div>
 
           <!-- Full Description -->
           <div class="prose prose-invert max-w-none pt-8 border-t border-white/10">
             <h2 class="text-xl font-bold text-white mb-4">Produktbeschreibung</h2>
-            <div v-if="product.description" v-html="product.description"></div>
+            <div v-if="product.description" v-html="cleanDescription(product.description)"></div>
           </div>
         </div>
       </div>
@@ -141,11 +169,14 @@ import { ref, onMounted, watch } from 'vue'
 import type { WooProduct, WooImage } from '~/types/woocommerce'
 import { useWooCommerce } from '~/composables/useWooCommerce'
 import { useCartStore } from '~/stores/cart'
+import { useStripe } from '~/composables/useStripe'
 import { useRoute } from 'vue-router'
+import { useToast } from '~/composables/useToast'
 
 const route = useRoute()
 const wooCommerce = useWooCommerce()
 const cartStore = useCartStore()
+const { loading: stripeLoading, error: stripeError, redirectToCheckout } = useStripe()
 
 const product = ref<WooProduct | null>(null)
 const loading = ref(true)
@@ -164,18 +195,20 @@ const formatPrice = (price: string | number) => {
 // Clean up Divi Builder shortcodes
 const cleanDescription = (html: string) => {
   if (!html) return ''
-  console.log('Cleaning description:', html)
-  // Remove both opening and closing Divi Builder shortcodes
-  const cleaned = html
-    .replace(/\[et_pb_[^\]]*\]/g, '') // Remove opening tags
-    .replace(/\[\/et_pb_[^\]]*\]/g, '') // Remove closing tags
-    .replace(/\[\/et_pb_section\]/g, '') // Remove section closing tag
-    .replace(/\[\/et_pb_row\]/g, '') // Remove row closing tag
-    .replace(/\[\/et_pb_column\]/g, '') // Remove column closing tag
-    .replace(/\[\/et_pb_wc_[^\]]*\]/g, '') // Remove all WooCommerce module closing tags
-    .trim() // Remove any extra whitespace
-  console.log('Cleaned description:', cleaned)
-  return cleaned
+  // Remove all [et_pb_*]...[/et_pb_*] blocks and any standalone [et_pb_*] or [/et_pb_*] tags
+  return html
+    .replace(/\[et_pb_[^\]]*\][\s\S]*?\[\/et_pb_[^\]]*\]/g, '') // Remove blocks
+    .replace(/\[et_pb_[^\]]*\]/g, '') // Remove standalone opening tags
+    .replace(/\[\/et_pb_[^\]]*\]/g, '') // Remove standalone closing tags
+    .replace(/\[\/et_pb_section\]/g, '')
+    .replace(/\[\/et_pb_row\]/g, '')
+    .replace(/\[\/et_pb_column\]/g, '')
+    .replace(/\[\/et_pb_wc_[^\]]*\]/g, '')
+    .replace(/\[et_pb_section[^\]]*\]/g, '')
+    .replace(/\[et_pb_row[^\]]*\]/g, '')
+    .replace(/\[et_pb_column[^\]]*\]/g, '')
+    .replace(/\[et_pb_wc_[^\]]*\]/g, '')
+    .trim()
 }
 
 // Fetch product data
@@ -223,17 +256,33 @@ watch(
   { immediate: true }
 )
 
-// Add to cart
+// Add to cart function
 const addToCart = async () => {
   if (!product.value) return
+  
   try {
-    console.log('Adding to cart:', { productId: product.value.id, quantity: quantity.value })
     await cartStore.addItem(product.value.id, quantity.value)
-    // Refresh cart data after adding item
-    await cartStore.fetchCart()
-    console.log('Cart updated:', cartStore.items)
+    
+    // Show success message
+    const toast = useToast()
+    toast.success('Produkt wurde zum Warenkorb hinzugefügt')
   } catch (err) {
     console.error('Error adding to cart:', err)
+    const toast = useToast()
+    toast.error('Fehler beim Hinzufügen zum Warenkorb')
+  }
+}
+
+// Handle express checkout
+const handleExpressCheckout = async () => {
+  if (!product.value) return
+  
+  try {
+    await redirectToCheckout(product.value.id, quantity.value)
+  } catch (err) {
+    console.error('Error initiating checkout:', err)
+    const toast = useToast()
+    toast.error('Fehler beim Starten des Checkouts')
   }
 }
 

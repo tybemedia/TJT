@@ -36,7 +36,7 @@
               </div>
               <div class="flex-1">
                 <h3 class="text-white font-medium">{{ item.name }}</h3>
-                <p class="text-white/60 mt-1">{{ item.price }} €</p>
+                <p class="text-white/60 mt-1">{{ formatPrice(item.price) }}</p>
                 <div class="flex items-center gap-4 mt-2">
                   <div class="flex items-center border border-white/10 rounded-lg">
                     <button 
@@ -73,19 +73,19 @@
           <div class="space-y-4">
             <div class="flex justify-between text-white/60">
               <span>Zwischensumme</span>
-              <span>{{ cartStore.subtotal }} €</span>
+              <span>{{ cartStore.formattedSubtotal }}</span>
             </div>
             <div class="flex justify-between text-white/60">
               <span>Versand</span>
-              <span>{{ cartStore.shipping }} €</span>
+              <span>{{ cartStore.formattedShipping }}</span>
             </div>
             <div class="flex justify-between text-white/60">
               <span>MwSt.</span>
-              <span>{{ cartStore.tax }} €</span>
+              <span>{{ cartStore.formattedTax }}</span>
             </div>
             <div class="flex justify-between text-white font-bold text-lg">
               <span>Gesamt</span>
-              <span>{{ cartStore.total }} €</span>
+              <span>{{ cartStore.formattedTotal }}</span>
             </div>
           </div>
           <button 
@@ -103,6 +103,7 @@
 
 <script setup lang="ts">
 import { useCartStore } from '~/stores/cart'
+import { onMounted, watch } from 'vue'
 
 const props = defineProps<{
   isOpen: boolean
@@ -113,6 +114,21 @@ const emit = defineEmits<{
 }>()
 
 const cartStore = useCartStore()
+
+// Add debug logging
+onMounted(() => {
+  console.log('Cart component mounted')
+  console.log('Cart state:', {
+    items: cartStore.items,
+    loading: cartStore.loading,
+    error: cartStore.error,
+    isEmpty: cartStore.isEmpty
+  })
+})
+
+watch(() => cartStore.items, (newItems) => {
+  console.log('Cart items updated:', newItems)
+}, { deep: true })
 
 const close = () => {
   emit('close')
@@ -125,6 +141,13 @@ const updateQuantity = async (key: string, quantity: number) => {
 
 const removeItem = async (key: string) => {
   await cartStore.removeItem(key)
+}
+
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: 'EUR'
+  }).format(price)
 }
 
 const checkout = () => {

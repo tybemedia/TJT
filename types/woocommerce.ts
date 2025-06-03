@@ -103,6 +103,7 @@ export interface WooCartItem {
 }
 
 export interface WooCart {
+  cart_key: string
   items: WooCartItem[]
   total: number
   subtotal: number

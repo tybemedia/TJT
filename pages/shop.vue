@@ -11,22 +11,6 @@
 
       <!-- Filters and Sort -->
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-        <div class="flex items-center gap-4">
-          <button 
-            v-for="category in categories" 
-            :key="category.id"
-            @click="selectedCategory = category.id"
-            :class="[
-              'px-4 py-2 rounded-md transition-colors',
-              selectedCategory === category.id 
-                ? 'bg-primary-600 text-white' 
-                : 'bg-white/5 text-white/60 hover:bg-white/10'
-            ]"
-          >
-            {{ category.name }}
-          </button>
-        </div>
-
         <select 
           v-model="sortBy"
           class="px-4 py-2 bg-white/5 border border-white/10 rounded-md text-white"
@@ -184,14 +168,11 @@ const fetchData = async () => {
 
 // Filter and sort products
 const filteredProducts = computed(() => {
-  let filtered = [...products.value]
-  
-  if (selectedCategory.value) {
-    filtered = filtered.filter(product => 
-      product.categories.some(cat => cat.id === selectedCategory.value)
-    )
-  }
-  
+  // Only show products that have a category named 'Launched'
+  let filtered = products.value.filter(product =>
+    product.categories.some(cat => cat.name === 'Launched')
+  )
+
   switch (sortBy.value) {
     case 'price':
       filtered.sort((a, b) => Number(a.price) - Number(b.price))
@@ -205,7 +186,7 @@ const filteredProducts = computed(() => {
     default: // date
       filtered.sort((a, b) => new Date(b.date_created).getTime() - new Date(a.date_created).getTime())
   }
-  
+
   return filtered
 })
 

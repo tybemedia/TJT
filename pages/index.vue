@@ -47,7 +47,7 @@
           </div>
         </section>
         <!-- Recipes Section -->
-        <section class="py-24 border-t border-white/10">
+        <section class="py-24">
           <div class="container mx-auto px-4">
             <div class="flex items-center justify-center mb-16 gap-4 select-none">
               <div class="flex-1 h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full"></div>
@@ -56,17 +56,17 @@
             </div>
             <div class="relative max-w-5xl mx-auto px-16">
               <Swiper v-bind="swiperOptions" class="recipes-slider">
-                <SwiperSlide v-for="(recipe, index) in recipes" :key="recipe.name">
+                <SwiperSlide v-for="recipe in recipes" :key="recipe.id">
                   <div class="text-center group hover:transform hover:scale-105 transition-all duration-300">
-                    <div class="relative aspect-[3/4] mb-6 overflow-hidden rounded-xl">
+                    <div class="relative aspect-[3/4] mb-6 overflow-hidden rounded-xl cursor-pointer" @click="openRecipe(recipe)">
                       <img 
-                        :src="recipeImages[index]" 
-                        :alt="recipe.name" 
+                        :src="getRecipeImage(recipe)" 
+                        :alt="decodeHtmlEntities(recipe.title.rendered)" 
                         class="object-cover w-full h-full transform group-hover:scale-110 transition-transform duration-500"
                       />
                     </div>
-                    <h3 class="text-2xl font-semibold mb-3 text-white group-hover:text-primary-400 transition-colors">{{ recipe.name }}</h3>
-                    <button class="text-primary-400 hover:text-primary-300 font-medium flex items-center gap-2 justify-center group-hover:translate-x-2 transition-transform">
+                    <h3 class="text-2xl font-semibold mb-3 text-white group-hover:text-primary-400 transition-colors">{{ decodeHtmlEntities(recipe.title.rendered) }}</h3>
+                    <button class="text-primary-400 hover:text-primary-300 font-medium flex items-center gap-2 justify-center group-hover:translate-x-2 transition-transform" @click="openRecipe(recipe)">
                       Zum Rezept
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -75,77 +75,77 @@
                   </div>
                 </SwiperSlide>
               </Swiper>
-              
               <!-- Navigation Buttons -->
               <div class="swiper-button-prev !text-white after:!text-2xl !-left-12"></div>
               <div class="swiper-button-next !text-white after:!text-2xl !-right-12"></div>
-              
               <!-- Pagination -->
               <div class="swiper-pagination !bottom-[-40px]"></div>
+            </div>
+            <!-- Recipe Popup Modal -->
+            <div v-if="selectedRecipe" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg">
+              <div
+                @click.self="selectedRecipe = null"
+                class="flex items-center justify-center w-full h-full"
+                style="position: absolute; inset: 0;"
+              >
+                <div
+                  class="relative w-full max-w-full sm:max-w-2xl md:max-w-3xl mx-0 sm:mx-4 my-0 sm:my-12 bg-[#131314] rounded-none sm:rounded-3xl shadow-2xl border border-white/20 flex flex-col animate-fade-in-modal"
+                  :class="{'overflow-y-auto max-h-[90vh]': true}"
+                  style="min-height: 0; max-height: 90vh;"
+                >
+                  <!-- Close Button -->
+                  <button @click="selectedRecipe = null" class="absolute top-2 right-2 sm:top-4 sm:right-4 z-20 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-white/20 bg-black/30 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all group">
+                    <span class="sr-only">Schließen</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6 text-white group-hover:text-primary-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                  <!-- Recipe Content -->
+                  <div class="flex flex-col md:flex-row gap-0 md:gap-10 p-3 xs:p-4 sm:p-6 md:p-10">
+                    <div class="flex-shrink-0 w-full md:w-1/2 flex items-center justify-center mb-4 md:mb-0">
+                      <img :src="getRecipeImage(selectedRecipe)" :alt="decodeHtmlEntities(selectedRecipe.title.rendered)" class="w-full h-40 xs:h-48 sm:h-64 md:h-80 object-cover rounded-xl shadow-lg border border-white/10" />
+                    </div>
+                    <div class="flex-1 flex flex-col justify-center">
+                      <h2 class="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-extrabold mb-3 text-white leading-tight drop-shadow-lg">{{ decodeHtmlEntities(selectedRecipe.title.rendered) }}</h2>
+                      <div class="prose prose-invert max-w-none text-white/90 text-sm xs:text-base sm:text-lg leading-relaxed" v-html="selectedRecipe.content.rendered"></div>
+                    </div>
+                  </div>
+                  <!-- Single Small Divider -->
+                  <div class="flex justify-center my-2">
+                    <div class="h-1 w-10 sm:w-16 bg-white/20 rounded-full"></div>
+                  </div>
+                  <!-- Product Section -->
+                  <div class="bg-[#131314] border-t border-white/20 px-2 py-4 xs:px-3 xs:py-6 sm:px-6 sm:py-8 md:px-10 md:py-10 rounded-b-none sm:rounded-b-3xl shadow-inner">
+                    <h3 class="text-lg xs:text-xl md:text-2xl font-bold text-white mb-4 sm:mb-6 text-center tracking-tight">Perfekt für jedes Rezept</h3>
+                    <div v-if="klassikerLoading" class="text-center text-white text-base py-2 sm:py-4">Produkte werden geladen...</div>
+                    <div v-else-if="klassikerError" class="text-center text-red-500 text-base py-2 sm:py-4">{{ klassikerError }}</div>
+                    <div v-else class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5 max-w-3xl mx-auto">
+                      <NuxtLink
+                        v-for="product in klassikerProducts"
+                        :key="product.id"
+                        :to="`/product?id=${product.id}`"
+                        class="group flex flex-col items-center bg-white/10 hover:bg-primary-900/30 transition-all duration-300 rounded-xl p-2 sm:p-4 focus:outline-none focus:ring-2 focus:ring-primary-500 border border-white/10 shadow-md"
+                        tabindex="0"
+                      >
+                        <div class="relative aspect-[3/4] w-16 xs:w-20 sm:w-24 md:w-28 mb-2 sm:mb-3 overflow-hidden rounded-lg bg-white/10">
+                          <img 
+                            :src="product.images[0]?.src || ''" 
+                            :alt="product.images[0]?.alt || product.name" 
+                            class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
+                        <h4 class="text-sm xs:text-base font-semibold text-white text-center mb-1 group-hover:text-primary-400 transition-colors">{{ product.name }}</h4>
+                        <p class="text-white/60 text-xs xs:text-sm text-center">{{ formatPrice(product.price) }}</p>
+                      </NuxtLink>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
         <!-- About Section -->
-        <section class="py-24 border-t border-white/10">
-          <div class="container mx-auto px-4">
-            <!-- Section 1: Herkunft & Inspiration -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-24">
-              <div class="relative aspect-[4/3] rounded-xl overflow-hidden">
-                <img 
-                  src="https://thejoshuatea.de/wp-content/uploads/2024/12/J68A8494.jpg" 
-                  alt="Joshua Tree National Park" 
-                  class="object-cover w-full h-full"
-                />
-              </div>
-              <div>
-                <h2 class="text-4xl font-bold mb-8 text-white tracking-tight">TJT – Ein Likör wie kein anderer</h2>
-                <div class="prose prose-lg prose-invert prose-headings:font-bold prose-p:text-white/80">
-                  <p class="mb-6 text-lg leading-relaxed">
-                    The Joshua Tea (TJT) vereint die spirituelle Weite des Joshua Tree Nationalparks mit der Finesse japanischer Teekunst und deutscher Destillationspräzision. Fruchtiger Pfirsich trifft auf eleganten Earl Grey – für ein unverwechselbares, modernes Geschmackserlebnis mit Tiefgang.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Section 2: Anspruchsvoller Genuss -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-24">
-              <div class="order-2 md:order-1">
-                <h2 class="text-4xl font-bold mb-8 text-white tracking-tight">Luxus für den Augenblick</h2>
-                <div class="prose prose-lg prose-invert prose-headings:font-bold prose-p:text-white/80">
-                  <p class="mb-6 text-lg leading-relaxed">
-                    TJT ist kein gewöhnlicher Likör – er ist ein Statement. Ob auf Eis, im Spritz oder mit Champagner: Jede Komposition lädt ein, Genuss bewusster zu zelebrieren. Handveredelt in Deutschland. Stilvoll. Besonders.
-                  </p>
-                </div>
-              </div>
-              <div class="relative aspect-[4/3] rounded-xl overflow-hidden order-1 md:order-2">
-                <img 
-                  src="https://thejoshuatea.de/wp-content/uploads/2024/10/J68A7683.jpg" 
-                  alt="TJT Cocktail" 
-                  class="object-cover w-full h-full"
-                />
-              </div>
-            </div>
-
-            <!-- Section 3: Tradition & Moderne -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-              <div class="relative aspect-[4/3] rounded-xl overflow-hidden">
-                <img 
-                  src="https://thejoshuatea.de/wp-content/uploads/2024/12/TJT-Cocktails.jpg"
-                  alt="TJT Bottle" 
-                  class="object-cover w-full h-full"
-                />
-              </div>
-              <div>
-                <h2 class="text-4xl font-bold mb-8 text-white tracking-tight">Eleganz, die bleibt</h2>
-                <div class="prose prose-lg prose-invert prose-headings:font-bold prose-p:text-white/80">
-                  <p class="mb-6 text-lg leading-relaxed">
-                    Mit The Joshua Tea erleben Sie Genuss, der über den Moment hinaus wirkt. Natürliche Zutaten, kultivierte Aromen und handwerkliche Vollendung machen TJT zum Inbegriff moderner Eleganz – für Menschen mit Sinn für das Außergewöhnliche.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <AboutTimeline />
         <InstagramFeed />
         <section class="py-20">
           <div class="container mx-auto px-4">
@@ -202,34 +202,34 @@ import 'swiper/css/navigation'
 import InstagramFeed from '~/components/InstagramFeed.vue'
 import AgeVerification from '~/components/AgeVerification.vue'
 import { useWooCommerce } from '~/composables/useWooCommerce'
+import AboutTimeline from '~/components/AboutTimeline.vue'
 
 definePageMeta({
   layout: 'default'
 })
 
-const recipes = [
-  { name: 'TJT — Wild Berry' },
-  { name: 'TJT — Sour' },
-  { name: 'TJT-Gimlet' },
-  { name: 'TJT-Spritz' },
-  { name: 'TJT de Luxe' },
-  { name: 'TJT — Coco-Sour' },
-  { name: 'TJT — Maracuja-Limette' },
-  { name: 'TJTini' },
-  { name: 'TJT — Tonic' }
-]
+// --- Dynamic Recipes from WordPress ---
+const recipes = ref<any[]>([])
+const selectedRecipe = ref<any | null>(null)
 
-const recipeImages = [
-  'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&auto=format&fit=crop&q=60', // Wild Berry - Red cocktail with berries
-  'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=800&auto=format&fit=crop&q=60', // Sour - Classic whiskey sour
-  'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&auto=format&fit=crop&q=60', // Gimlet - Fresh lime cocktail
-  'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&auto=format&fit=crop&q=60', // Spritz - Aperol spritz style
-  'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&auto=format&fit=crop&q=60', // De Luxe - Elegant cocktail
-  'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&auto=format&fit=crop&q=60', // Coco-Sour - Tropical cocktail
-  'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&auto=format&fit=crop&q=60', // Maracuja - Exotic cocktail
-  'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=800&auto=format&fit=crop&q=60', // TJTini - Martini style
-  'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&auto=format&fit=crop&q=60'  // Tonic - Gin and tonic style
-]
+function getRecipeImage(recipe: any) {
+  return recipe._embedded?.['wp:featuredmedia']?.[0]?.source_url || '/placeholder.jpg'
+}
+
+function openRecipe(recipe: any) {
+  selectedRecipe.value = recipe
+}
+
+onMounted(async () => {
+  try {
+    // Fetch only posts from the 'Cocktails' category (ID 24)
+    const res = await fetch('https://thejoshuatea.de/wp-json/wp/v2/posts?categories=24&_embed')
+    recipes.value = await res.json()
+  } catch (e) {
+    recipes.value = []
+  }
+})
+// --- End Dynamic Recipes ---
 
 const faqs = [
   {
@@ -313,11 +313,43 @@ function formatPrice(price: string | number) {
     currency: 'EUR'
   }).format(Number(price))
 }
+
+// Utility to decode HTML entities
+function decodeHtmlEntities(str: string) {
+  if (!str) return ''
+  const txt = document.createElement('textarea')
+  txt.innerHTML = str
+  return txt.value
+}
+
+// Responsive modal scroll logic
+const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024)
+
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('resize', () => {
+      windowWidth.value = window.innerWidth
+    })
+  }
+})
 </script>
 
 <style>
 .recipes-slider {
   padding-bottom: 60px;
+}
+
+.prose :where(img) {
+  margin: 1.5rem 0;
+  border-radius: 1rem;
+  box-shadow: 0 4px 24px 0 #0004;
+}
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(.4,0,.2,1);
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .swiper-pagination-bullet {
@@ -387,5 +419,13 @@ function formatPrice(price: string | number) {
   background-image: radial-gradient(circle, white 1px, transparent 1px);
   background-size: 50px 50px;
   opacity: 0.1;
+}
+
+.animate-fade-in-modal {
+  animation: fadeInModal 0.35s cubic-bezier(.4,0,.2,1);
+}
+@keyframes fadeInModal {
+  from { opacity: 0; transform: translateY(40px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 </style> 

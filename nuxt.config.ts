@@ -6,6 +6,7 @@ export default defineNuxtConfig({
     '@nuxtjs/color-mode',
     '@nuxt/image',
     '@pinia/nuxt',
+    '@vueuse/motion/nuxt',
   ],
   routeRules: {
     '/shop/**': { ssr: true }
@@ -33,14 +34,20 @@ export default defineNuxtConfig({
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap' }
+      ],
+      script: [
+        { src: 'https://js.stripe.com/v3/', defer: true }
       ]
     }
   },
   runtimeConfig: {
+    stripeSecretKey: process.env.STRIPE_SECRET_KEY,
     public: {
       woocommerceApiUrl: process.env.WOOCOMMERCE_API_URL,
       woocommerceConsumerKey: process.env.WOOCOMMERCE_CONSUMER_KEY,
       woocommerceConsumerSecret: process.env.WOOCOMMERCE_CONSUMER_SECRET,
+      stripePublicKey: process.env.STRIPE_PUBLIC_KEY,
+      siteUrl: process.env.SITE_URL || 'http://localhost:3000',
     }
   }
 })
