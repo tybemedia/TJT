@@ -54,11 +54,11 @@
               <h2 class="text-5xl font-bold text-white tracking-tight text-center">Rezepte</h2>
               <div class="flex-1 h-1 bg-gradient-to-l from-transparent via-white/20 to-transparent rounded-full"></div>
             </div>
-            <div class="relative max-w-5xl mx-auto px-16">
+            <div class="relative max-w-5xl mx-auto">
               <Swiper v-bind="swiperOptions" class="recipes-slider">
                 <SwiperSlide v-for="recipe in recipes" :key="recipe.id">
-                  <div class="text-center group hover:transform hover:scale-105 transition-all duration-300">
-                    <div class="relative aspect-[3/4] mb-6 overflow-hidden rounded-xl cursor-pointer" @click="openRecipe(recipe)">
+                  <div class="text-center group hover:transform hover:scale-105 transition-all duration-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <div class="relative aspect-[3/4] mb-6 overflow-hidden rounded-xl bg-white/5 cursor-pointer" @click="openRecipe(recipe)">
                       <img 
                         :src="getRecipeImage(recipe)" 
                         :alt="decodeHtmlEntities(recipe.title.rendered)" 
@@ -76,8 +76,8 @@
                 </SwiperSlide>
               </Swiper>
               <!-- Navigation Buttons -->
-              <div class="swiper-button-prev !text-white after:!text-2xl !-left-12"></div>
-              <div class="swiper-button-next !text-white after:!text-2xl !-right-12"></div>
+              <div class="swiper-button-prev !text-white after:!text-2xl !-left-16"></div>
+              <div class="swiper-button-next !text-white after:!text-2xl !-right-16"></div>
               <!-- Pagination -->
               <div class="swiper-pagination !bottom-[-40px]"></div>
             </div>
@@ -149,41 +149,124 @@
         <InstagramFeed />
         <section class="py-20">
           <div class="container mx-auto px-4">
-            <h2 class="text-4xl font-bold text-center mb-12">Häufige Fragen</h2>
-            <div class="space-y-6">
-              <div v-for="faq in faqs" :key="faq.question" 
-                   class="bg-white/5 p-8 rounded-xl border border-white/10 hover:border-primary-500/50 hover:bg-white/10 transition-all duration-300">
-                <h3 class="text-2xl font-semibold mb-4 text-white">{{ faq.question }}</h3>
-                <p class="text-white/80 text-lg leading-relaxed">{{ faq.answer }}</p>
+            <div class="flex items-center justify-center mb-16 gap-4 select-none">
+              <div class="flex-1 h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full"></div>
+              <h2 class="text-5xl font-bold text-white tracking-tight text-center">Häufige Fragen</h2>
+              <div class="flex-1 h-1 bg-gradient-to-l from-transparent via-white/20 to-transparent rounded-full"></div>
+            </div>
+            <div class="max-w-5xl mx-auto space-y-4">
+              <div v-for="(faq, index) in faqs" :key="faq.question" 
+                   class="bg-white/5 rounded-xl border border-white/10 overflow-hidden transition-all duration-300"
+                   :class="{ 'bg-white/10': openFaq === index }">
+                <button 
+                  @click="openFaq = openFaq === index ? null : index"
+                  class="w-full px-8 py-6 flex items-center justify-between text-left focus:outline-none rounded-xl"
+                >
+                  <h3 class="text-xl font-semibold text-white">{{ faq.question }}</h3>
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    class="h-6 w-6 text-white/60 transition-transform duration-300"
+                    :class="{ 'rotate-180': openFaq === index }"
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div 
+                  v-show="openFaq === index"
+                  class="px-8 pb-6 text-white/80 text-lg leading-relaxed animate-fade-in"
+                >
+                  {{ faq.answer }}
+                </div>
               </div>
             </div>
           </div>
         </section>
-        <!-- Newsletter Section -->
-        <section class="py-24 border-t border-white/10">
-          <div class="container mx-auto px-4 max-w-2xl text-center">
-            <div class="relative aspect-[16/9] mb-12 rounded-xl overflow-hidden">
-              <img 
-                src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&auto=format&fit=crop&q=60" 
-                alt="TJT Cocktail" 
-                class="object-cover w-full h-full"
-              />
+        
+        <!-- Contact Form Section -->
+        <section class="relative py-24">
+          <!-- Background Image -->
+          <div class="absolute inset-0 z-0">
+            <img 
+              src="https://thejoshuatea.de/wp-content/uploads/2024/12/J68A8494.jpg" 
+              alt="Contact Background" 
+              class="w-full h-full object-cover"
+            />
+            <div class="absolute inset-0 bg-black/70"></div>
+          </div>
+          
+          <div class="container mx-auto px-4 relative z-10">
+            <div class="flex items-center justify-center mb-16 gap-4 select-none">
+              <div class="flex-1 h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full"></div>
+              <h2 class="text-5xl font-bold text-white tracking-tight text-center">Kontakt</h2>
+              <div class="flex-1 h-1 bg-gradient-to-l from-transparent via-white/20 to-transparent rounded-full"></div>
             </div>
-            <h2 class="text-4xl font-bold mb-6 text-white tracking-tight">Kein Update verpassen</h2>
-            <p class="text-white/80 text-lg mb-10 leading-relaxed">
-              Entdecke die Welt von The Joshua Tea! Trag dich in unseren Newsletter ein und bleib immer auf dem Laufenden über exklusive Angebote, Events und spannende Neuigkeiten.
-            </p>
-            <form class="flex gap-4 justify-center">
-              <input 
-                type="email" 
-                placeholder="E-Mail-Adresse" 
-                class="px-6 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-white placeholder-white/50 w-full max-w-md transition-all duration-300 hover:bg-white/10"
-              >
-              <button type="submit" 
-                      class="px-8 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all duration-300 font-medium whitespace-nowrap">
-                Abonnieren
-              </button>
-            </form>
+            
+            <div class="max-w-2xl mx-auto">
+              <form @submit.prevent="submitContactForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label for="name" class="block text-white/80 mb-2">Name</label>
+                    <input 
+                      type="text" 
+                      id="name" 
+                      v-model="contactForm.name"
+                      required
+                      class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-white placeholder-white/50 transition-all duration-300 hover:bg-white/10"
+                      placeholder="Ihr Name"
+                    />
+                  </div>
+                  <div>
+                    <label for="email" class="block text-white/80 mb-2">E-Mail</label>
+                    <input 
+                      type="email" 
+                      id="email" 
+                      v-model="contactForm.email"
+                      required
+                      class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-white placeholder-white/50 transition-all duration-300 hover:bg-white/10"
+                      placeholder="Ihre E-Mail"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label for="subject" class="block text-white/80 mb-2">Betreff</label>
+                  <input 
+                    type="text" 
+                    id="subject" 
+                    v-model="contactForm.subject"
+                    required
+                    class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-white placeholder-white/50 transition-all duration-300 hover:bg-white/10"
+                    placeholder="Betreff"
+                  />
+                </div>
+                <div>
+                  <label for="message" class="block text-white/80 mb-2">Nachricht</label>
+                  <textarea 
+                    id="message" 
+                    v-model="contactForm.message"
+                    required
+                    rows="6"
+                    class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-white placeholder-white/50 transition-all duration-300 hover:bg-white/10 resize-none"
+                    placeholder="Ihre Nachricht"
+                  ></textarea>
+                </div>
+                <div class="flex justify-center">
+                  <button 
+                    type="submit"
+                    :disabled="isSubmitting"
+                    class="px-8 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    <span v-if="isSubmitting">Wird gesendet...</span>
+                    <span v-else>Nachricht senden</span>
+                    <svg v-if="!isSubmitting" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </section>
       </div>
@@ -250,10 +333,12 @@ const faqs = [
   }
 ]
 
+const openFaq = ref<number | null>(null)
+
 const swiperOptions = {
   modules: [Pagination, Navigation],
   slidesPerView: 1,
-  spaceBetween: 32,
+  spaceBetween: 48,
   pagination: {
     clickable: true,
     el: '.swiper-pagination',
@@ -265,9 +350,11 @@ const swiperOptions = {
   breakpoints: {
     640: {
       slidesPerView: 2,
+      spaceBetween: 48,
     },
     1024: {
       slidesPerView: 3,
+      spaceBetween: 48,
     },
   },
 }
@@ -332,6 +419,55 @@ onMounted(() => {
     })
   }
 })
+
+// Contact Form
+const contactForm = ref({
+  name: '',
+  email: '',
+  subject: '',
+  message: ''
+})
+
+const isSubmitting = ref(false)
+
+async function submitContactForm() {
+  isSubmitting.value = true
+  try {
+    const response = await fetch('https://thejoshuatea.de/wp-json/contact-form-7/v1/contact-forms/123/feedback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: contactForm.value.name,
+        email: contactForm.value.email,
+        subject: contactForm.value.subject,
+        message: contactForm.value.message,
+      }),
+    })
+
+    const data = await response.json()
+    
+    if (data.status === 'mail_sent') {
+      // Reset form
+      contactForm.value = {
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      }
+      // Show success message
+      alert('Vielen Dank für Ihre Nachricht! Wir werden uns in Kürze bei Ihnen melden.')
+    } else {
+      throw new Error(data.message || 'Ein Fehler ist aufgetreten')
+    }
+  } catch (error) {
+    alert('Es gab ein Problem beim Senden Ihrer Nachricht. Bitte versuchen Sie es später erneut.')
+    console.error('Contact form error:', error)
+  } finally {
+    isSubmitting.value = false
+  }
+}
 </script>
 
 <style>
@@ -345,11 +481,11 @@ onMounted(() => {
   box-shadow: 0 4px 24px 0 #0004;
 }
 .animate-fade-in {
-  animation: fadeIn 0.3s cubic-bezier(.4,0,.2,1);
+  animation: fadeIn 0.3s ease-out;
 }
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.98); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .swiper-pagination-bullet {
