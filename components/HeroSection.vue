@@ -13,7 +13,7 @@
       </video>
       <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
     </div>
-    <div class="absolute inset-0 container mx-auto px-8 flex items-center">
+    <div class="absolute inset-0 container mx-auto px-4 flex items-center">
       <div class="max-w-2xl text-white text-center">
         <img 
           src="https://thejoshuatea.de/wp-content/uploads/2024/12/logo_cropped-1.png" 

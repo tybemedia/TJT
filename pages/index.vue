@@ -187,14 +187,17 @@
         
         <!-- Contact Form Section -->
         <section class="relative py-24">
-          <!-- Background Image -->
+          <!-- Background Image with Organic Gradient -->
           <div class="absolute inset-0 z-0">
             <img 
               src="https://thejoshuatea.de/wp-content/uploads/2024/12/J68A8494.jpg" 
               alt="Contact Background" 
               class="w-full h-full object-cover"
             />
-            <div class="absolute inset-0 bg-black/70"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-[#131314] via-[#131314]/80 to-transparent"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#131314] via-[#131314]/70 to-transparent"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-[#131314]/80 via-transparent to-transparent"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#131314]/80 via-transparent to-transparent"></div>
           </div>
           
           <div class="container mx-auto px-4 relative z-10">

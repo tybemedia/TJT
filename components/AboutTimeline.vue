@@ -1,16 +1,18 @@
 <template>
   <section class="about-section-bg py-24 relative">
-    <div class="container mx-auto flex flex-col gap-24 max-w-4xl xl:max-w-5xl px-4">
-      <AboutBlock
-        v-for="(block, i) in blocks"
-        :key="block.title"
-        :title="block.title"
-        :text="block.text"
-        :img="block.img"
-        :reverse="i % 2 === 1"
-        :active="activeIndex === i"
-        :ref="setBlockRef(i)"
-      />
+    <div class="container mx-auto px-4">
+      <div class="max-w-5xl mx-auto flex flex-col gap-24">
+        <AboutBlock
+          v-for="(block, i) in blocks"
+          :key="block.title"
+          :title="block.title"
+          :text="block.text"
+          :img="block.img"
+          :reverse="i % 2 === 1"
+          :active="activeIndex === i"
+          :ref="setBlockRef(i)"
+        />
+      </div>
     </div>
   </section>
 </template>
