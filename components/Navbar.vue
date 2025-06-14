@@ -12,6 +12,7 @@
           <NuxtLink to="/#rezepte" class="text-white/60 hover:text-white transition-colors font-medium">Rezepte</NuxtLink>
           <NuxtLink to="/product?id=202" class="text-white/60 hover:text-white transition-colors font-medium">TJT</NuxtLink>
           <NuxtLink to="/product?id=208" class="text-white/60 hover:text-white transition-colors font-medium">Anbar Gin</NuxtLink>
+          <a href="#kontakt" class="text-white/60 hover:text-white transition-colors font-medium">Kontakt</a>
         </div>
         <!-- Right: Cart and Mobile Menu Button -->
         <div class="flex items-center gap-4">
@@ -56,6 +57,7 @@
         <NuxtLink to="/#rezepte" class="block py-2 text-white/60 hover:text-white transition-colors font-medium" @click="isMenuOpen = false">Rezepte</NuxtLink>
         <NuxtLink to="/product?id=202" class="block py-2 text-white/60 hover:text-white transition-colors font-medium" @click="isMenuOpen = false">TJT</NuxtLink>
         <NuxtLink to="/product?id=208" class="block py-2 text-white/60 hover:text-white transition-colors font-medium" @click="isMenuOpen = false">Anbar Gin</NuxtLink>
+        <a href="#kontakt" class="block py-2 text-white/60 hover:text-white transition-colors font-medium" @click="isMenuOpen = false">Kontakt</a>
       </div>
     </div>
   </nav>
