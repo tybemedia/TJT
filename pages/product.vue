@@ -97,66 +97,44 @@
             </div>
           </div>
 
-          <!-- Add to Cart -->
-          <div class="flex flex-col gap-4">
-            <div class="flex items-center gap-4">
+          <!-- Full Description -->
+          <div class="prose prose-invert max-w-none pt-8 border-t border-white/10">
+            <h2 class="text-xl font-bold text-white mb-4">Produktbeschreibung</h2>
+            <div v-if="product.description" v-html="cleanDescription(product.description)"></div>
+          </div>
+
+          <!-- Add to Cart Section -->
+          <div class="space-y-4">
+            <div class="flex items-center space-x-4">
               <div class="flex items-center border border-white/10 rounded-lg">
                 <button 
                   @click="quantity > 1 && quantity--"
                   class="px-4 py-2 text-white/60 hover:text-white"
-                  :disabled="quantity <= 1"
                 >
-                  -
+                  <span class="sr-only">Decrease quantity</span>
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                  </svg>
                 </button>
                 <span class="px-4 py-2 text-white">{{ quantity }}</span>
                 <button 
                   @click="quantity++"
                   class="px-4 py-2 text-white/60 hover:text-white"
                 >
-                  +
+                  <span class="sr-only">Increase quantity</span>
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
                 </button>
               </div>
-              <button 
-                @click="addToCart"
-                class="flex-1 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                :disabled="cartStore.loading || !product.purchasable"
-              >
-                <svg v-if="!cartStore.loading" class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9 22C9.55228 22 10 21.5523 10 21C10 20.4477 9.55228 20 9 20C8.44772 20 8 20.4477 8 21C8 21.5523 8.44772 22 9 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M20 22C20.5523 22 21 21.5523 21 21C21 20.4477 20.5523 20 20 20C19.4477 20 19 20.4477 19 21C19 21.5523 19.4477 22 20 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M1 1H5L7.68 14.39C7.77144 14.8504 8.02191 15.264 8.38755 15.5583C8.75318 15.8526 9.2107 16.009 9.68 16H19.4C19.8693 16.009 20.3268 15.8526 20.6925 15.5583C21.0581 15.264 21.3086 14.8504 21.4 14.39L23 6H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span v-if="cartStore.loading" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
-                <span v-if="cartStore.loading">Wird hinzugefügt...</span>
-                <span v-else>In den Warenkorb</span>
-              </button>
             </div>
 
-            <!-- Stripe Express Checkout -->
-            <div class="flex flex-col gap-2">
-              <button 
-                @click="handleExpressCheckout"
-                class="w-full px-6 py-3 bg-[#635BFF] text-white rounded-lg hover:bg-[#4B45C6] transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                :disabled="stripeLoading || !product.purchasable"
-              >
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span v-if="stripeLoading">Wird geladen...</span>
-                <span v-else>Express Checkout</span>
-              </button>
-              <p class="text-white/60 text-sm text-center">
-                Sichere Zahlung mit Stripe
-              </p>
-            </div>
-          </div>
-
-          <!-- Full Description -->
-          <div class="prose prose-invert max-w-none pt-8 border-t border-white/10">
-            <h2 class="text-xl font-bold text-white mb-4">Produktbeschreibung</h2>
-            <div v-if="product.description" v-html="cleanDescription(product.description)"></div>
+            <button 
+              @click="addToCart"
+              class="w-full flex items-center justify-center rounded-md border border-transparent bg-white px-6 py-3 text-base font-medium text-[#131314] shadow-sm hover:bg-white/90"
+            >
+              In den Warenkorb
+            </button>
           </div>
         </div>
       </div>
@@ -168,21 +146,18 @@
 import { ref, onMounted, watch } from 'vue'
 import type { WooProduct, WooImage } from '~/types/woocommerce'
 import { useWooCommerce } from '~/composables/useWooCommerce'
-import { useCartStore } from '~/stores/cart'
-import { useStripe } from '~/composables/useStripe'
 import { useRoute } from 'vue-router'
-import { useToast } from '~/composables/useToast'
+import { useCartStore } from '~/stores/cart'
 
 const route = useRoute()
 const wooCommerce = useWooCommerce()
 const cartStore = useCartStore()
-const { loading: stripeLoading, error: stripeError, redirectToCheckout } = useStripe()
 
 const product = ref<WooProduct | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
-const quantity = ref(1)
 const selectedImage = ref<WooImage | null>(null)
+const quantity = ref(1)
 
 // Format price
 const formatPrice = (price: string | number) => {
@@ -256,42 +231,32 @@ watch(
   { immediate: true }
 )
 
-// Add to cart function
-const addToCart = async () => {
-  if (!product.value) return
-  
-  try {
-    await cartStore.addItem(product.value.id, quantity.value)
-    
-    // Show success message
-    const toast = useToast()
-    toast.success('Produkt wurde zum Warenkorb hinzugefügt')
-  } catch (err) {
-    console.error('Error adding to cart:', err)
-    const toast = useToast()
-    toast.error('Fehler beim Hinzufügen zum Warenkorb')
-  }
-}
-
-// Handle express checkout
-const handleExpressCheckout = async () => {
-  if (!product.value) return
-  
-  try {
-    await redirectToCheckout(product.value.id, quantity.value)
-  } catch (err) {
-    console.error('Error initiating checkout:', err)
-    const toast = useToast()
-    toast.error('Fehler beim Starten des Checkouts')
-  }
-}
-
 // Initial data fetch
 onMounted(async () => {
   console.log('Product page mounted')
   console.log('Route query:', route.query)
   await fetchProduct()
-  // Fetch initial cart data
-  await cartStore.fetchCart()
 })
+
+const addToCart = () => {
+  if (!product.value) return
+
+  console.log('Adding product to cart:', {
+    id: product.value.id,
+    name: product.value.name,
+    price: parseFloat(product.value.price),
+    image: product.value.images[0]?.src || '/placeholder.jpg',
+    quantity: quantity.value
+  })
+
+  cartStore.addItem({
+    id: product.value.id,
+    name: product.value.name,
+    price: parseFloat(product.value.price),
+    image: product.value.images[0]?.src || '/placeholder.jpg'
+  }, quantity.value)
+
+  // Reset quantity after adding to cart
+  quantity.value = 1
+}
 </script> 

@@ -1,4 +1,4 @@
-import type { WooProduct, WooCart } from '~/types/woocommerce'
+import type { WooProduct, WooCategory } from '~/types/woocommerce'
 
 export const useWooCommerce = () => {
   const config = useRuntimeConfig()
@@ -17,268 +17,69 @@ export const useWooCommerce = () => {
 
   const testConnection = async (): Promise<boolean> => {
     try {
-      const queryParams = new URLSearchParams({
-        consumer_key: CONSUMER_KEY,
-        consumer_secret: CONSUMER_SECRET
+      const response = await fetch(`${API_URL}/wc/v3/products?per_page=1`, {
+        headers: {
+          'Authorization': `Basic ${btoa(`${CONSUMER_KEY}:${CONSUMER_SECRET}`)}`
+        }
       })
-      const response = await fetch(`${API_URL}/wc/v3/products?${queryParams}`)
-      if (!response.ok) throw response
-      const data = await response.json()
-      console.log('API test successful, received', data.length, 'products')
-      return true
+      return response.ok
     } catch (error) {
-      return handleApiError(error, 'test connection')
+      console.error('Error testing WooCommerce connection:', error)
+      return false
     }
   }
 
-  const getProducts = async (params?: Record<string, any>): Promise<WooProduct[]> => {
-    try {
-      const queryParams = new URLSearchParams({
-        consumer_key: CONSUMER_KEY,
-        consumer_secret: CONSUMER_SECRET,
-        ...params
-      })
-      const response = await fetch(`${API_URL}/wc/v3/products?${queryParams}`)
-      if (!response.ok) throw response
-      return await response.json()
-    } catch (error) {
-      return handleApiError(error, 'product fetch')
+  const getProducts = async (params: Record<string, any> = {}): Promise<WooProduct[]> => {
+    const queryParams = new URLSearchParams({
+      per_page: '100',
+      ...params
+    })
+
+    const response = await fetch(`${API_URL}/wc/v3/products?${queryParams}`, {
+      headers: {
+        'Authorization': `Basic ${btoa(`${CONSUMER_KEY}:${CONSUMER_SECRET}`)}`
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch products')
     }
+
+    return response.json()
   }
 
   const getProduct = async (id: number): Promise<WooProduct> => {
-    try {
-      const queryParams = new URLSearchParams({
-        consumer_key: CONSUMER_KEY,
-        consumer_secret: CONSUMER_SECRET
-      })
-      const response = await fetch(`${API_URL}/wc/v3/products/${id}?${queryParams}`)
-      if (!response.ok) throw response
-      return await response.json()
-    } catch (error) {
-      return handleApiError(error, 'single product fetch')
+    const response = await fetch(`${API_URL}/wc/v3/products/${id}`, {
+      headers: {
+        'Authorization': `Basic ${btoa(`${CONSUMER_KEY}:${CONSUMER_SECRET}`)}`
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch product')
     }
+
+    return response.json()
   }
 
-  const getCart = async (): Promise<WooCart> => {
-    try {
-      const response = await fetch(`${API_URL}/wc/store/cart`, {
-        credentials: 'include',
-        headers: {
-          'Accept': 'application/json'
-        }
-      })
-      const data = await response.json()
-
-      if (!response.ok) {
-        console.error('Cart API Error:', data)
-        throw new Error(data.message || 'Failed to fetch cart')
+  const getCategories = async (): Promise<WooCategory[]> => {
+    const response = await fetch(`${API_URL}/wc/v3/products/categories?per_page=100`, {
+      headers: {
+        'Authorization': `Basic ${btoa(`${CONSUMER_KEY}:${CONSUMER_SECRET}`)}`
       }
+    })
 
-      console.log('Cart Response:', data)
-
-      return {
-        cart_key: data.cart_key || '',
-        items: data.items?.map((item: any) => ({
-          key: item.key,
-          id: item.id,
-          quantity: item.quantity,
-          name: item.name,
-          price: item.prices?.price,
-          total: item.prices?.total,
-          image: item.images?.[0]?.src || ''
-        })) || [],
-        total: data.totals?.total_price || 0,
-        subtotal: data.totals?.total_items || 0,
-        shipping: data.totals?.total_shipping || 0,
-        tax: data.totals?.total_tax || 0
-      }
-    } catch (error) {
-      console.error('Error fetching cart:', error)
-      return {
-        cart_key: '',
-        items: [],
-        total: 0,
-        subtotal: 0,
-        shipping: 0,
-        tax: 0
-      }
+    if (!response.ok) {
+      throw new Error('Failed to fetch categories')
     }
-  }
 
-  const addToCart = async (productId: number, quantity: number = 1): Promise<WooCart> => {
-    try {
-      console.log('Adding to cart:', { productId, quantity })
-      const response = await fetch(`${API_URL}/wc/store/cart/add-item`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          id: productId,
-          quantity
-        })
-      })
-
-      const data = await response.json()
-      console.log('Add to cart response:', data)
-
-      if (!response.ok) {
-        console.error('Add to Cart API Error:', data)
-        throw new Error(data.message || 'Failed to add item to cart')
-      }
-
-      return {
-        cart_key: data.cart_key || '',
-        items: data.items?.map((item: any) => ({
-          key: item.key,
-          id: item.id,
-          quantity: item.quantity,
-          name: item.name,
-          price: item.prices?.price,
-          total: item.prices?.total,
-          image: item.images?.[0]?.src || ''
-        })) || [],
-        total: data.totals?.total_price || 0,
-        subtotal: data.totals?.total_items || 0,
-        shipping: data.totals?.total_shipping || 0,
-        tax: data.totals?.total_tax || 0
-      }
-    } catch (error) {
-      console.error('Error adding to cart:', error)
-      throw error
-    }
-  }
-
-  const updateCartItem = async (itemKey: string, quantity: number): Promise<WooCart> => {
-    try {
-      const response = await fetch(`${API_URL}/wc/store/cart/update-item`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          key: itemKey,
-          quantity
-        })
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        console.error('Update Cart API Error:', data)
-        throw new Error(data.message || 'Failed to update cart item')
-      }
-
-      return {
-        cart_key: data.cart_key || '',
-        items: data.items?.map((item: any) => ({
-          key: item.key,
-          id: item.id,
-          quantity: item.quantity,
-          name: item.name,
-          price: item.prices?.price,
-          total: item.prices?.total,
-          image: item.images?.[0]?.src || ''
-        })) || [],
-        total: data.totals?.total_price || 0,
-        subtotal: data.totals?.total_items || 0,
-        shipping: data.totals?.total_shipping || 0,
-        tax: data.totals?.total_tax || 0
-      }
-    } catch (error) {
-      console.error('Error updating cart item:', error)
-      throw error
-    }
-  }
-
-  const removeCartItem = async (itemKey: string): Promise<WooCart> => {
-    try {
-      const response = await fetch(`${API_URL}/wc/store/cart/remove-item`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          key: itemKey
-        })
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        console.error('Remove Cart Item API Error:', data)
-        throw new Error(data.message || 'Failed to remove cart item')
-      }
-
-      return {
-        cart_key: data.cart_key || '',
-        items: data.items?.map((item: any) => ({
-          key: item.key,
-          id: item.id,
-          quantity: item.quantity,
-          name: item.name,
-          price: item.prices?.price,
-          total: item.prices?.total,
-          image: item.images?.[0]?.src || ''
-        })) || [],
-        total: data.totals?.total_price || 0,
-        subtotal: data.totals?.total_items || 0,
-        shipping: data.totals?.total_shipping || 0,
-        tax: data.totals?.total_tax || 0
-      }
-    } catch (error) {
-      console.error('Error removing cart item:', error)
-      throw error
-    }
-  }
-
-  const clearCart = async (): Promise<WooCart> => {
-    try {
-      const response = await fetch(`${API_URL}/wc/store/cart/clear`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        console.error('Clear Cart API Error:', data)
-        throw new Error(data.message || 'Failed to clear cart')
-      }
-
-      return {
-        cart_key: data.cart_key || '',
-        items: [],
-        total: 0,
-        subtotal: 0,
-        shipping: 0,
-        tax: 0
-      }
-    } catch (error) {
-      console.error('Error clearing cart:', error)
-      throw error
-    }
+    return response.json()
   }
 
   return {
     testConnection,
     getProducts,
     getProduct,
-    getCart,
-    addToCart,
-    updateCartItem,
-    removeCartItem,
-    clearCart,
+    getCategories
   }
 }

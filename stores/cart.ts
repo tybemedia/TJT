@@ -1,160 +1,162 @@
 import { defineStore } from 'pinia'
-import type { WooCart, WooCartItem } from '~/types/woocommerce'
+import { ref, computed } from 'vue'
+
+interface CartItem {
+  id: number
+  name: string
+  price: number
+  quantity: number
+  image: string
+}
 
 interface CartState {
-  items: WooCartItem[]
-  total: number
-  subtotal: number
-  shipping: number
-  tax: number
+  items: CartItem[]
   loading: boolean
   error: string | null
 }
 
-export const useCartStore = defineStore('cart', {
-  state: (): CartState => ({
-    items: [],
-    total: 0,
-    subtotal: 0,
-    shipping: 0,
-    tax: 0,
-    loading: false,
-    error: null
-  }),
+const STORAGE_KEY = 'cart'
 
-  getters: {
-    itemCount: (state: CartState) => state.items.length,
-    isEmpty: (state: CartState) => state.items.length === 0,
-    formattedTotal: (state: CartState) => {
-      return new Intl.NumberFormat('de-DE', {
-        style: 'currency',
-        currency: 'EUR'
-      }).format(state.total)
-    },
-    formattedSubtotal: (state: CartState) => {
-      return new Intl.NumberFormat('de-DE', {
-        style: 'currency',
-        currency: 'EUR'
-      }).format(state.subtotal)
-    },
-    formattedShipping: (state: CartState) => {
-      return new Intl.NumberFormat('de-DE', {
-        style: 'currency',
-        currency: 'EUR'
-      }).format(state.shipping)
-    },
-    formattedTax: (state: CartState) => {
-      return new Intl.NumberFormat('de-DE', {
-        style: 'currency',
-        currency: 'EUR'
-      }).format(state.tax)
+export const useCartStore = defineStore('cart', () => {
+  const items = ref<CartItem[]>([])
+  const loading = ref(false)
+  const error = ref<string | null>(null)
+
+  const totalItems = computed(() => {
+    return items.value.reduce((sum, item) => sum + item.quantity, 0)
+  })
+
+  const totalPrice = computed(() => {
+    return items.value.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  })
+
+  const formattedTotal = computed(() => {
+    return new Intl.NumberFormat('de-DE', {
+      style: 'currency',
+      currency: 'EUR'
+    }).format(totalPrice.value)
+  })
+
+  function loadFromStorage() {
+    try {
+      const storedCart = localStorage.getItem(STORAGE_KEY)
+      if (storedCart) {
+        const parsedItems = JSON.parse(storedCart)
+        console.log('Loading cart from storage:', parsedItems)
+        items.value = parsedItems
+      }
+    } catch (err) {
+      console.error('Error loading cart from storage:', err)
+      error.value = 'Failed to load cart from storage'
     }
-  },
+  }
 
-  actions: {
-    async fetchCart() {
-      this.loading = true
-      this.error = null
-      try {
-        console.log('Fetching cart...')
-        const { getCart } = useWooCommerce()
-        const cart = await getCart()
-        console.log('Cart fetched:', cart)
-        this.items = cart.items
-        this.total = cart.total
-        this.subtotal = cart.subtotal
-        this.shipping = cart.shipping
-        this.tax = cart.tax
-      } catch (error) {
-        console.error('Error fetching cart:', error)
-        this.error = error instanceof Error ? error.message : 'Failed to fetch cart'
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async addItem(productId: number, quantity: number = 1) {
-      this.loading = true
-      this.error = null
-      try {
-        console.log('Adding item to cart:', { productId, quantity })
-        const { addToCart } = useWooCommerce()
-        const cart = await addToCart(productId, quantity)
-        console.log('Cart after adding item:', cart)
-        this.items = cart.items
-        this.total = cart.total
-        this.subtotal = cart.subtotal
-        this.shipping = cart.shipping
-        this.tax = cart.tax
-      } catch (error) {
-        console.error('Error adding item to cart:', error)
-        this.error = error instanceof Error ? error.message : 'Failed to add item to cart'
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async updateItem(itemKey: string, quantity: number) {
-      this.loading = true
-      this.error = null
-      try {
-        console.log('Updating cart item:', { itemKey, quantity })
-        const { updateCartItem } = useWooCommerce()
-        const cart = await updateCartItem(itemKey, quantity)
-        console.log('Cart after updating item:', cart)
-        this.items = cart.items
-        this.total = cart.total
-        this.subtotal = cart.subtotal
-        this.shipping = cart.shipping
-        this.tax = cart.tax
-      } catch (error) {
-        console.error('Error updating cart item:', error)
-        this.error = error instanceof Error ? error.message : 'Failed to update cart item'
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async removeItem(itemKey: string) {
-      this.loading = true
-      this.error = null
-      try {
-        console.log('Removing cart item:', { itemKey })
-        const { removeCartItem } = useWooCommerce()
-        const cart = await removeCartItem(itemKey)
-        console.log('Cart after removing item:', cart)
-        this.items = cart.items
-        this.total = cart.total
-        this.subtotal = cart.subtotal
-        this.shipping = cart.shipping
-        this.tax = cart.tax
-      } catch (error) {
-        console.error('Error removing cart item:', error)
-        this.error = error instanceof Error ? error.message : 'Failed to remove cart item'
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async clearCart() {
-      this.loading = true
-      this.error = null
-      try {
-        console.log('Clearing cart...')
-        const { clearCart } = useWooCommerce()
-        const cart = await clearCart()
-        console.log('Cart after clearing:', cart)
-        this.items = cart.items
-        this.total = cart.total
-        this.subtotal = cart.subtotal
-        this.shipping = cart.shipping
-        this.tax = cart.tax
-      } catch (error) {
-        console.error('Error clearing cart:', error)
-        this.error = error instanceof Error ? error.message : 'Failed to clear cart'
-      } finally {
-        this.loading = false
-      }
+  function saveToStorage() {
+    try {
+      console.log('Saving cart to storage:', items.value)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items.value))
+    } catch (err) {
+      console.error('Error saving cart to storage:', err)
+      error.value = 'Failed to save cart to storage'
     }
+  }
+
+  function addItem(product: { id: number; name: string; price: number; image: string }, quantity: number = 1) {
+    console.log('Adding item to cart:', product, quantity)
+    loading.value = true
+    error.value = null
+    try {
+      const existingItem = items.value.find(item => item.id === product.id)
+      
+      if (existingItem) {
+        existingItem.quantity += quantity
+      } else {
+        items.value.push({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity,
+          image: product.image
+        })
+      }
+
+      saveToStorage()
+      console.log('Cart after adding item:', items.value)
+    } catch (err) {
+      console.error('Error adding item to cart:', err)
+      error.value = 'Failed to add item to cart'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  function updateItem(productId: number, quantity: number) {
+    console.log('Updating item quantity:', productId, quantity)
+    loading.value = true
+    error.value = null
+    try {
+      const item = items.value.find(item => item.id === productId)
+      if (item) {
+        if (quantity <= 0) {
+          removeItem(productId)
+        } else {
+          item.quantity = quantity
+          saveToStorage()
+        }
+      }
+      console.log('Cart after updating item:', items.value)
+    } catch (err) {
+      console.error('Error updating cart item:', err)
+      error.value = 'Failed to update cart item'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  function removeItem(productId: number) {
+    console.log('Removing item:', productId)
+    loading.value = true
+    error.value = null
+    try {
+      items.value = items.value.filter(item => item.id !== productId)
+      saveToStorage()
+      console.log('Cart after removing item:', items.value)
+    } catch (err) {
+      console.error('Error removing item from cart:', err)
+      error.value = 'Failed to remove item from cart'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  function clearCart() {
+    console.log('Clearing cart')
+    loading.value = true
+    error.value = null
+    try {
+      items.value = []
+      localStorage.removeItem(STORAGE_KEY)
+      console.log('Cart cleared')
+    } catch (err) {
+      console.error('Error clearing cart:', err)
+      error.value = 'Failed to clear cart'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return {
+    items,
+    loading,
+    error,
+    totalItems,
+    totalPrice,
+    formattedTotal,
+    loadFromStorage,
+    saveToStorage,
+    addItem,
+    updateItem,
+    removeItem,
+    clearCart
   }
 }) 

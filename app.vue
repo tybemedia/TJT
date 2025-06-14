@@ -1,23 +1,33 @@
 <template>
-  <NuxtLayout>
+  <div class="min-h-screen bg-[#131314]">
+    <Navbar />
     <NuxtPage />
-  </NuxtLayout>
+    <!-- Debug Button -->
+    <button 
+      @click="debugCart"
+      class="fixed bottom-4 right-4 bg-white text-black px-4 py-2 rounded-md"
+    >
+      Debug Cart
+    </button>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { useCartStore } from '~/stores/cart'
 import { onMounted } from 'vue'
+import { useCartStore } from '~/stores/cart'
 
-// Initialize cart on app start
 const cartStore = useCartStore()
 
-onMounted(async () => {
-  console.log('App mounted, initializing cart...')
-  try {
-    await cartStore.fetchCart()
-    console.log('Cart initialized successfully')
-  } catch (error) {
-    console.error('Failed to initialize cart:', error)
-  }
+// Initialize app
+onMounted(() => {
+  console.log('App mounted')
+  cartStore.loadFromStorage()
 })
+
+const debugCart = () => {
+  console.log('Cart Items:', cartStore.items)
+  console.log('Cart Total:', cartStore.totalItems)
+  console.log('Cart Price:', cartStore.totalPrice)
+  console.log('Local Storage:', localStorage.getItem('cart'))
+}
 </script>
