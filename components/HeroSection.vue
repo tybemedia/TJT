@@ -1,9 +1,10 @@
 <template>
-  <section class="relative">
-    <div class="w-full">
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <!-- Background Video for Desktop -->
+    <div class="hidden md:block absolute inset-0 w-full h-full">
       <video 
         ref="video"
-        class="w-full"
+        class="w-full h-full object-cover"
         autoplay
         loop
         muted
@@ -13,7 +14,19 @@
       </video>
       <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
     </div>
-    <div class="absolute inset-0 container mx-auto px-4 flex items-center">
+    
+    <!-- Background Image for Mobile -->
+    <div class="md:hidden absolute inset-0 w-full h-full">
+      <img 
+        src="https://thejoshuatea.de/wp-content/uploads/2024/12/J68A8494.jpg" 
+        alt="The Joshua Tea Hero Background Mobile" 
+        class="w-full h-full object-cover"
+      />
+      <div class="absolute inset-0 bg-black/50"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="relative container mx-auto px-4 flex items-center justify-center">
       <div class="max-w-2xl text-white text-center">
         <img 
           src="https://thejoshuatea.de/wp-content/uploads/2024/12/logo_cropped-1.png" 
@@ -24,11 +37,11 @@
         <h1 class="text-8xl font-bold opacity-0 mb-8" ref="title">
           <span class="text-4xl uppercase tracking-wider">ZEITLOSE ELEGANZ</span>
         </h1>
-        <div class="flex gap-8 opacity-0 justify-center" ref="buttons">
+        <div class="flex flex-col sm:flex-row gap-8 opacity-0 justify-center" ref="buttons">
           <NuxtLink to="/shop" class="px-8 py-3 text-lg font-medium bg-transparent border border-white text-white rounded-md hover:bg-white/10 transition-colors duration-200">
             UNSERE KLASSIKER
           </NuxtLink>
-          <NuxtLink to="#TJT-Rezepte" class="px-8 py-3 text-lg font-medium bg-transparent border border-white text-white rounded-md hover:bg-white/10 transition-colors duration-200">
+          <NuxtLink to="/#TJT-Rezepte" class="px-8 py-3 text-lg font-medium bg-transparent border border-white text-white rounded-md hover:bg-white/10 transition-colors duration-200">
             REZEPTE
           </NuxtLink>
         </div>

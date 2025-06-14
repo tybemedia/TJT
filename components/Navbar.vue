@@ -80,7 +80,7 @@
           Rezepte
         </a>
         <NuxtLink 
-          to="/#contact-form"
+          to="/#kontakt"
           class="block text-white/60 hover:text-white transition-colors"
           @click="closeMenu"
         >

@@ -3,7 +3,7 @@
     <!-- Background Image -->
     <div class="absolute inset-0">
       <img 
-        src="/images/hero-bg.jpg" 
+        src="../assets/images/J68A3858 (1).jpg" 
         alt="The Joshua Tea Hero Background" 
         class="w-full h-full object-cover"
       />

@@ -5,21 +5,8 @@
       <div class="text-center mb-12">
         <h1 class="text-4xl font-bold text-white mb-4">Shop</h1>
         <p class="text-white/60 max-w-2xl mx-auto">
-          Entdecken Sie unsere Auswahl an hochwertigen Tees und Spirituosen.
+          Entdecke unsere Auswahl an hochwertigen Spirituosen.
         </p>
-      </div>
-
-      <!-- Filters -->
-      <div class="flex flex-wrap gap-4 mb-8">
-        <button 
-          v-for="category in categories" 
-          :key="category.id"
-          @click="selectedCategory = category.id"
-          class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-          :class="selectedCategory === category.id ? 'bg-primary-500 text-white' : 'bg-white/5 text-white/60 hover:bg-white/10'"
-        >
-          {{ category.name }}
-        </button>
       </div>
 
       <!-- Products Grid -->
@@ -37,7 +24,7 @@
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         <div 
-          v-for="product in filteredProducts" 
+          v-for="product in products" 
           :key="product.id"
           class="group"
         >
@@ -75,15 +62,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import type { WooProduct, WooCategory } from '~/types/woocommerce'
+import { ref, onMounted } from 'vue'
+import type { WooProduct } from '~/types/woocommerce'
 import { useWooCommerce } from '~/composables/useWooCommerce'
 
 const wooCommerce = useWooCommerce()
 
 const products = ref<WooProduct[]>([])
-const categories = ref<WooCategory[]>([])
-const selectedCategory = ref<number | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
 
@@ -95,25 +80,13 @@ const formatPrice = (price: string | number) => {
   }).format(Number(price))
 }
 
-// Filter products by category
-const filteredProducts = computed(() => {
-  if (!selectedCategory.value) return products.value
-  return products.value.filter(product => 
-    product.categories.some(category => category.id === selectedCategory.value)
-  )
-})
-
-// Fetch products and categories
+// Fetch products
 const fetchData = async () => {
   loading.value = true
   error.value = null
   try {
-    const [productsData, categoriesData] = await Promise.all([
-      wooCommerce.getProducts(),
-      wooCommerce.getCategories()
-    ])
+    const productsData = await wooCommerce.getProducts({ category: 22 })
     products.value = productsData
-    categories.value = categoriesData
   } catch (err) {
     console.error('Error loading shop data:', err)
     error.value = 'Failed to load products'
