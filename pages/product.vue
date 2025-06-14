@@ -253,8 +253,9 @@ const addToCart = () => {
     id: product.value.id,
     name: product.value.name,
     price: parseFloat(product.value.price),
-    image: product.value.images[0]?.src || '/placeholder.jpg'
-  }, quantity.value)
+    image: product.value.images[0]?.src || '/placeholder.jpg',
+    quantity: quantity.value
+  })
 
   // Reset quantity after adding to cart
   quantity.value = 1

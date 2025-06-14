@@ -47,7 +47,7 @@
           </div>
         </section>
         <!-- Recipes Section -->
-        <section class="py-24">
+        <section id="TJT-Rezepte" class="py-24">
           <div class="container mx-auto px-4">
             <div class="flex items-center justify-center mb-16 gap-4 select-none">
               <div class="flex-1 h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-full"></div>

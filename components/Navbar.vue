@@ -1,31 +1,38 @@
 <template>
   <nav class="fixed top-0 left-0 right-0 z-50 bg-[#131314]/80 backdrop-blur-lg border-b border-white/10">
     <div class="container mx-auto px-4">
-      <div class="flex items-center justify-between h-20">
+      <div class="flex items-center justify-between h-28">
         <!-- Left: Logo -->
-        <NuxtLink to="/" class="text-2xl font-bold text-white">
-          The Joshua Tea
+        <NuxtLink to="/" class="flex items-center">
+          <img 
+            src="https://thejoshuatea.de/wp-content/uploads/2024/07/04_Wort-Bild-SW-logoTJT-Negativ-2.png" 
+            alt="The Joshua Tea Logo" 
+            class="h-24 w-auto"
+          />
         </NuxtLink>
 
         <!-- Center: Navigation Links -->
         <div class="hidden md:flex items-center gap-8">
-          <NuxtLink to="/" class="text-white/60 hover:text-white transition-colors">
-            Home
+          <NuxtLink to="/products" class="text-white/60 hover:text-white transition-colors">
+            Unsere Klassiker
           </NuxtLink>
-          <NuxtLink to="/shop" class="text-white/60 hover:text-white transition-colors">
-            Shop
+          <NuxtLink to="/product?id=202" class="text-white/60 hover:text-white transition-colors">
+            TJT
           </NuxtLink>
-          <NuxtLink to="/about" class="text-white/60 hover:text-white transition-colors">
-            About
+          <NuxtLink to="/product?id=205" class="text-white/60 hover:text-white transition-colors">
+            Anbar
           </NuxtLink>
-          <NuxtLink to="/contact" class="text-white/60 hover:text-white transition-colors">
-            Contact
+          <a href="/#TJT-Rezepte" class="text-white/60 hover:text-white transition-colors">
+            Rezepte
+          </a>
+          <NuxtLink to="/#kontakt" class="text-white/60 hover:text-white transition-colors">
+            Kontakt
           </NuxtLink>
         </div>
 
         <!-- Right: Cart and Mobile Menu -->
         <div class="flex items-center gap-4">
-          <CartButton @click="isCartOpen = true" class="text-white/60 hover:text-white transition-colors" />
+          <CartButton @click="cartStore.toggleCart" class="text-white/60 hover:text-white transition-colors" />
           <button 
             @click="toggleMenu"
             class="md:hidden text-white/60 hover:text-white transition-colors"
@@ -45,46 +52,56 @@
     >
       <div class="container mx-auto px-4 py-4 space-y-4">
         <NuxtLink 
-          to="/"
+          to="/products"
           class="block text-white/60 hover:text-white transition-colors"
           @click="closeMenu"
         >
-          Home
+          Unsere Klassiker
         </NuxtLink>
         <NuxtLink 
-          to="/shop"
+          to="/product?id=202"
           class="block text-white/60 hover:text-white transition-colors"
           @click="closeMenu"
         >
-          Shop
+          TJT
         </NuxtLink>
         <NuxtLink 
-          to="/about"
+          to="/product?id=205"
           class="block text-white/60 hover:text-white transition-colors"
           @click="closeMenu"
         >
-          About
+          Anbar
         </NuxtLink>
-        <NuxtLink 
-          to="/contact"
+        <a 
+          href="/#TJT-Rezepte"
           class="block text-white/60 hover:text-white transition-colors"
           @click="closeMenu"
         >
-          Contact
+          Rezepte
+        </a>
+        <NuxtLink 
+          to="/#contact-form"
+          class="block text-white/60 hover:text-white transition-colors"
+          @click="closeMenu"
+        >
+          Kontakt
         </NuxtLink>
       </div>
     </div>
 
     <!-- Cart -->
-    <Cart :is-open="isCartOpen" @close="isCartOpen = false" />
+    <Cart />
   </nav>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useCartStore } from '~/stores/cart'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
+const cartStore = useCartStore()
 const isMenuOpen = ref(false)
-const isCartOpen = ref(false)
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
@@ -92,5 +109,40 @@ const toggleMenu = () => {
 
 const closeMenu = () => {
   isMenuOpen.value = false
+}
+
+const scrollToRecipes = () => {
+  if (router.currentRoute.value.path === '/') {
+    const recipesSection = document.getElementById('rezepte')
+    if (recipesSection) {
+      recipesSection.scrollIntoView({ behavior: 'smooth' })
+    }
+  } else {
+    router.push('/')
+    // Wait for the page to load before scrolling
+    setTimeout(() => {
+      const recipesSection = document.getElementById('rezepte')
+      if (recipesSection) {
+        recipesSection.scrollIntoView({ behavior: 'smooth' })
+      }
+    }, 100)
+  }
+}
+
+const scrollToRecipesAndCloseMenu = () => {
+  closeMenu()
+  scrollToRecipes()
+}
+
+const scrollToContact = () => {
+  const contactForm = document.getElementById('kontakt')
+  if (contactForm) {
+    contactForm.scrollIntoView({ behavior: 'smooth' })
+  }
+}
+
+const scrollToContactAndCloseMenu = () => {
+  closeMenu()
+  scrollToContact()
 }
 </script> 

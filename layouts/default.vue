@@ -19,9 +19,9 @@
       <div class="container mx-auto px-4 relative z-10">
         <div class="max-w-5xl mx-auto">
           <!-- Contact Form -->
-          <div id="kontakt">
-            <h3 class="text-xl font-bold mb-6">Kontakt</h3>
-            <form @submit.prevent="submitContactForm" class="space-y-6">
+          <div class="w-full md:w-1/2 px-4 md:px-8">
+            <h3 class="text-2xl font-bold text-white mb-6">Kontakt</h3>
+            <form id="kontakt" @submit.prevent="submitContactForm" class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label for="name" class="block text-white/80 mb-2">Name</label>

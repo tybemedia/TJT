@@ -1,12 +1,12 @@
 <template>
   <div class="fixed inset-y-0 right-0 w-full max-w-md bg-[#131314] shadow-xl transform transition-transform duration-300 ease-in-out"
-       :class="{ 'translate-x-0': isOpen, 'translate-x-full': !isOpen }">
+       :class="{ 'translate-x-0': cartStore.isOpen, 'translate-x-full': !cartStore.isOpen }">
     <div class="h-full flex flex-col">
       <!-- Header -->
       <div class="px-4 py-4 bg-[#1a1a1b] border-b border-white/10">
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-medium text-white">Warenkorb</h2>
-          <button @click="$emit('close')" class="text-white/60 hover:text-white">
+          <button @click="cartStore.closeCart" class="text-white/60 hover:text-white">
             <span class="sr-only">Close panel</span>
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -97,7 +97,7 @@
           <p>
             oder
             <button 
-              @click="$emit('close')"
+              @click="cartStore.closeCart"
               class="font-medium text-white hover:text-white"
             >
               Weiter einkaufen
@@ -112,14 +112,6 @@
 
 <script setup lang="ts">
 import { useCartStore } from '~/stores/cart'
-
-const props = defineProps<{
-  isOpen: boolean
-}>()
-
-const emit = defineEmits<{
-  (e: 'close'): void
-}>()
 
 const cartStore = useCartStore()
 

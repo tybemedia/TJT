@@ -25,10 +25,10 @@
           <span class="text-4xl uppercase tracking-wider">ZEITLOSE ELEGANZ</span>
         </h1>
         <div class="flex gap-8 opacity-0 justify-center" ref="buttons">
-          <NuxtLink to="/products" class="px-8 py-3 text-lg font-medium bg-transparent border border-white text-white rounded-md hover:bg-white/10 transition-colors duration-200">
+          <NuxtLink to="/shop" class="px-8 py-3 text-lg font-medium bg-transparent border border-white text-white rounded-md hover:bg-white/10 transition-colors duration-200">
             UNSERE KLASSIKER
           </NuxtLink>
-          <NuxtLink to="/recipes" class="px-8 py-3 text-lg font-medium bg-transparent border border-white text-white rounded-md hover:bg-white/10 transition-colors duration-200">
+          <NuxtLink to="#TJT-Rezepte" class="px-8 py-3 text-lg font-medium bg-transparent border border-white text-white rounded-md hover:bg-white/10 transition-colors duration-200">
             REZEPTE
           </NuxtLink>
         </div>
